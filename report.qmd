@@ -1,16 +1,16 @@
 ---
 title: "Final Project: Gapminder"
-author: "Andrew Dang"
+author: "Andrew Dang, Dennis Kulik, Andrew Loader, Jack Zdanowski"
 format: 
   html:
     embed-resources: true
-    code-tools: true
+    code-tools: false
     toc: true
-    code-fold: true
+    code-fold: false
 editor: source
 execute: 
   error: true
-  echo: true
+  echo: false
   message: false
   warning: false
 ---
@@ -27,21 +27,13 @@ library(forcats)
 
 ```{r}
 # load data
-lex <- read_csv("./data/lex.csv")
-edu <- read_csv("./data/owid_education_idx.csv")
+lex <- read_csv("./data/lex.csv", 
+                col_types = cols(.default = col_double(), country = col_character()))
+edu <- read_csv("./data/owid_education_idx.csv", 
+                col_types = cols(.default = col_double(), country = col_character()))
 ```
 
-lex: The number of years a newborn infant would live if the current mortality rates at different ages were to stay the same throughout its life.
- 
-(Africa Watch 1991; Andreev et al. 1998; Ansart et al. 2009; Bell & Miller n.d.; Bernhard 2012; Blayo 1975; Boyle & Ó Gráda 1986; Brunborg 1976; Caldwell et al. 1986; Cameron 2012; Correlates of War n.d.; Devereux 2000; Dyson & Ó Gráda 2002; Dyson 1991; Electoral Institute for Sustainable Democracy in Africa 2009; Eisner 1961; Ellman 2007; Estonian Interuniversity Population Research Centre 2013; FEWS NET 2013; Frankema & Jerven 2013; Gardarsdottir 2002; Gaud & Morgan 1945; Gilbert 2008; GBD 2019; Greer 2005; Groenewold et al. 2007; Hacker 2011; Hamilton & Rasmussen 2009; Hays 2005; Highland 1991; Hill et al. 2008; Human Life-Table Database n.d.; Human Mortality Database 2009, 2011, 2013; Hubert 2009; Johnson & Mueller 2002; Kamal 2008; Kannisto et al. 1999; Katus 2000; Kohn 2008; Krumins 1994; Kuczynski 1948; Kumo et al. 2007; Langford & Storey 1992, 1993; Langford 1996; Latvijas Statistika 2013; Lee & Feng 1999; Luo 1988; Maison 1977; Manniche 1997; Ministry of Health 1920; Mitchell 2003; Murray et al. 2006; Myllyntaus 2009; National Statistics China (Taiwan) 2013; Ó Gráda 2006, 2009; Patterson 1993; Post 1990; Riley 2005a, 2005b, n.d.; Seklani 1974; Shanks et al. 2011, 2012; Sigrah & King 2001; Singiza 2011; Smallman-Raynor & Cliff 1998; Spagnol 1997; Statistics and Research Åland n.d.; Statistics Estonia 2013; Statistics Greenland 2013; Straits Times 2011; Thibon 2002; Tubutin et al. 2001; Turpeinen 1979; U.S. Census Bureau 2011; Vallin & Meslé 2001; Vallin et al. 2002, 2012; Webb & Braun 1994; White 2014; UN Population Division 2006, 2010, 2012, 2019; Wrigley & Schofield 1989; Wrigley et al. 1997)
-
-
-edu: Education index calculated based on Avg years of schooling, taking values 0 as minimum and 15 as maximum.
-
-(Barro-Lee 2018; Lee-Lee 2016; UNDP 2018)
-
 ```{r}
-# maybe we want to do a full join instead of an inner join
 joined <- lex |>
   pivot_longer(matches("^[[:digit:]]+"), names_to = "year", values_to = "life_expectancy") |>
   inner_join(edu |>
@@ -53,33 +45,39 @@ clean <- joined |>
          !country %in% c("Taiwan", "South Korea", "Somalia"))
 ```
 
+## 1. Introduction
 
-```{r}
+This project compares the relationship between life expectancy at birth and mean years of schooling across countries and years, using data sourced from Gapminder. Life expectancy at birth represents the number of years a newborn would live if current mortality rates did not change throughout its life. Mean years of schooling refers to the average of all education levels completed by adults aged between 25 and 64.
+
+The life expectancy data is compiled from multiple sources. The primary source from 1800–1970 is Gapminder’s version 7 dataset, which is compiled from 100 sources by Klara Johansson and Mattias Lindgren, with estimates to account for major historical events like famines or wars. For 1950–2019, data comes from the Global Burden of Disease Study 2019 by the Institute for Health Metrics and Evaluation (IHME). The United Nations World Population Prospects 2022 were used to estimate data from 2020–2100. The mean years of schooling data combines estimates from Lee-Lee (2016) for 1870–1949 (population aged 25–64), Barro-Lee (2018) for 1950–1990 (population aged 25+), and the United Nations Development Programme (UNDP) Human Development Report (2018) for 1991–2017 (population aged 25+).
+
+We hypothesize a moderate to strong positive relationship between mean years of schooling and life expectancy, with higher levels of education correlating with longer life expectancy. This is to be expected, because education is often tied to improved health literacy, better access to healthcare, and improved socioeconomic opportunities, and this connection is supported by The Nation’s Health, a publication of the American Public Health Association (McGill 2016).
+
+## 2. Data Cleaning
+
+Overall, minimal data cleaning needed to be done with these datasets. The mean years of schooling dataset was filtered to exclude years prior to 2000, as many of the years had missing values and sparse coverage. Additionally, Taiwan, South Korea, and Somalia were dropped due to consistently missing education information throughout the entire period. These decisions isolated the analysis to recent, well-documented data, specifically from the years 2000 to 2017.
+
+```{r, fig.height=6}
 joined |> 
   filter(year >= 1990,
-         !country %in% c("Taiwan", "South Korea", "Somalia"),
          is.na(education)) |> 
   ggplot(aes(x = year, y = country)) +
-  geom_point(color = "red") +
+  geom_point(color = "black") +
   labs(
     title = "Missing Education Data by Country and Year",
-    subtitle = "Excluding countries with no missing data",
+    subtitle = "Excluding countries without missing data from 1990-2017",
     x = "Year",
     y = "Country"
-  ) + 
+  ) +
   theme(
     axis.text.x = element_text(angle = 45, hjust = 1)
   )
-
-
 ```
 
-outside source supporting hypothesis:
-(McGill 2016)
-
-
+Figure 1: Missing education data by country and year (1990–2017). Taiwan, South Korea, and Somalia show consistently missing data and were excluded.
 
 ## Bibliography
+
 Africa watch, de Waal (1991), "Evil days. 30 years of war and famine in Ethiopia.", An Africa Watch report.
 
 Andreev etal (1998), "Demographic history of Russia: 1927-1959" (In russian) (cited in e2744).
@@ -262,8 +260,7 @@ Webb & Braun (1994), "Famine and food security in Ethiopia. Lessons for Africa",
 
 White, Mathew (2014), "Necrometrics - death tolls across history", homepage, accessed in beginning of 2014.
 
-United Nations, Department of Economic and Social Affairs, Population Division (2019). World Population
-Prospects 2019: Highlights (ST/ESA/SER.A/423).
+United Nations, Department of Economic and Social Affairs, Population Division (2019). World Population Prospects 2019: Highlights (ST/ESA/SER.A/423).
 
 United Nations Population Division. World Population Prospects: The 2006 Revision. Life expectancy at birth, both sexes.
 
@@ -274,4 +271,3 @@ United Nations Population Division. World Population Prospects: The 2012 Revisio
 Wrigley & Schofield (1989), "The population history of England 1541-1871. A reconstruction"
 
 Wrigley etal (1997), "English population from family reconstitution 1580-1837".
-
