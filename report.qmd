@@ -22,6 +22,7 @@ library(readr)
 library(ggplot2)
 library(dplyr)
 library(tidyr)
+library(forcats)
 ```
 
 ```{r}
@@ -30,18 +31,43 @@ lex <- read_csv("./data/lex.csv")
 edu <- read_csv("./data/owid_education_idx.csv")
 ```
 
-lex:
-The number of years a newborn infant would live if the current mortality rates at different ages were to stay the same throughout its life.
+lex: The number of years a newborn infant would live if the current mortality rates at different ages were to stay the same throughout its life.
 
-edu:
-Education index calculated based on Avg years of schooling, taking values 0 as minimum and 15 as maximum.
+edu: Education index calculated based on Avg years of schooling, taking values 0 as minimum and 15 as maximum.
 
 ```{r}
 # maybe we want to do a full join instead of an inner join
-clean <- lex |>
+joined <- lex |>
   pivot_longer(matches("^[[:digit:]]+"), names_to = "year", values_to = "life_expectancy") |>
   inner_join(edu |>
                pivot_longer(matches("^[[:digit:]]+"), names_to = "year", values_to = "education"),
              by = join_by(country, year))
+
+clean <- joined |> 
+  filter(year >= 2000,
+         !country %in% c("Taiwan", "South Korea", "Somalia"))
 ```
 
+```{r}
+joined |> 
+  filter(year >= 1990,
+         !country %in% c("Taiwan", "South Korea", "Somalia"),
+         is.na(education)) |> 
+  ggplot(aes(x = year, y = country)) +
+  geom_point(color = "red") +
+  labs(
+    title = "Missing Education Data by Country and Year",
+    subtitle = "Excluding countries with no missing data",
+    x = "Year",
+    y = "Country"
+  ) + 
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+
+```
+
+outside source supporting hypothesis:
+
+<https://www.thenationshealth.org/content/46/6/1.3>
