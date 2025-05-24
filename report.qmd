@@ -31,10 +31,12 @@ edu <- read_csv("./data/owid_education_idx.csv")
 ```
 
 lex:
-The number of years a newborn infant would live if the current mortality rates at different ages were to stay the same throughout its life.
+The number of years a newborn infant would live if the current mortality rates at different ages were to stay the same throughout its life. 
+(Africa Watch 1991; Andreev et al. 1998; Ansart et al. 2009; Bell & Miller n.d.; Bernhard 2012; Blayo 1975; Boyle & Ó Gráda 1986; Brunborg 1976; Caldwell et al. 1986; Cameron 2012; Correlates of War n.d.; Devereux 2000; Dyson & Ó Gráda 2002; Dyson 1991; Electoral Institute for Sustainable Democracy in Africa 2009; Eisner 1961; Ellman 2007; Estonian Interuniversity Population Research Centre 2013; FEWS NET 2013; Frankema & Jerven 2013; Gardarsdottir 2002; Gaud & Morgan 1945; Gilbert 2008; GBD 2019; Greer 2005; Groenewold et al. 2007; Hacker 2011; Hamilton & Rasmussen 2009; Hays 2005; Highland 1991; Hill et al. 2008; Human Life-Table Database n.d.; Human Mortality Database 2009, 2011, 2013; Hubert 2009; Johnson & Mueller 2002; Kamal 2008; Kannisto et al. 1999; Katus 2000; Kohn 2008; Krumins 1994; Kuczynski 1948; Kumo et al. 2007; Langford & Storey 1992, 1993; Langford 1996; Latvijas Statistika 2013; Lee & Feng 1999; Luo 1988; Maison 1977; Manniche 1997; Ministry of Health 1920; Mitchell 2003; Murray et al. 2006; Myllyntaus 2009; National Statistics China (Taiwan) 2013; Ó Gráda 2006, 2009; Patterson 1993; Post 1990; Riley 2005a, 2005b, n.d.; Seklani 1974; Shanks et al. 2011, 2012; Sigrah & King 2001; Singiza 2011; Smallman-Raynor & Cliff 1998; Spagnol 1997; Statistics and Research Åland n.d.; Statistics Estonia 2013; Statistics Greenland 2013; Straits Times 2011; Thibon 2002; Tubutin et al. 2001; Turpeinen 1979; U.S. Census Bureau 2011; Vallin & Meslé 2001; Vallin et al. 2002, 2012; Webb & Braun 1994; White 2014; UN Population Division 2006, 2010, 2012, 2019; Wrigley & Schofield 1989; Wrigley et al. 1997)
 
 edu:
 Education index calculated based on Avg years of schooling, taking values 0 as minimum and 15 as maximum.
+(Barro-Lee 2018; Lee-Lee 2016; UNDP 2018)
 
 ```{r}
 # maybe we want to do a full join instead of an inner join
@@ -45,3 +47,196 @@ clean <- lex |>
              by = join_by(country, year))
 ```
 
+## Bibliography
+Africa watch, de Waal (1991), "Evil days. 30 years of war and famine in Ethiopia.", An Africa Watch report.
+
+Andreev etal (1998), "Demographic history of Russia: 1927-1959" (In russian) (cited in e2744).
+
+Ansart etal (2009), "Mortality burden of the 1918-1919 influenza pandemic in Europe", Influenza and other respiratory viruses 3 (3), 99-106.
+
+Barro, Robert and Jong-Wha Lee, 2018, “A New Data Set of Educational Attainment in the World, 1950-2010.” Journal of Development Economics, vol 104, pp.184-198.
+
+Bell, Felicitie C. & Miller, Michael L. Life Tables for the United States Social Security Area 1900-2100 Actuarial Study No. 116
+
+Bernhard (2012), "Behind the battle lines: Italian atrocities and the persecution of arabs, berbers, and jews in North africa during world war II", Holocaust and Genocide studies, volume 26, number 3, winter 2012.
+
+Blayo (1975 I), "La mortalité en France de 1740 à 1829", Population, 30e année, no 1, pp 123-142.
+
+Boyle and o'Grada (1986), "Fertility trends, excess mortality, and the Great Irish Famine", Demography, vol 23, no 4, pp. 543-562.
+
+Brunborg, Helge. 1976. The Inverse Projection Method Applied To Norway, 1735-1974, Unpublished typescript.
+
+Caldwell etal (1986), "Population trends in China - a perspective provided by the 1982 census", in "A census of one billion people. Papers for international seminar on China's 1982 population census", chief editor Chengrui.
+
+Cameron (2012), "The hungry steppe: Famine, mass violence and the making of Soviet Kazakhstan", Scholar research brief
+
+Correlates of War
+
+Devereux (2000), "Famine in the twentieth century", IDS Working Paper 105
+
+Dyson & O Grada (2002), "Famine demography"
+
+Dyson (1991), "On the demography of South Asian famines part II", Population studies, vol 45, no. 2.
+
+Electoral institute for sustainable democracy in Africa (2009), "Mauritius: socio-economic change and political conflict (1910-1945)"
+
+Eisner (1961), "Jamaica 1830-1930. A study in economic growth".
+
+Ellman (2007), "Stalin and the Soviet famine 1932-33 revisited"
+
+Estonian Interuniversity Population Research Centre: Theme B: Historical demography
+
+Estonian Interuniversity Population Research Centre (database), mortality data, accessed in 2013.
+
+FEWS NET (2013), "Mortality among populations of southern and central Somalia affected by severe food insecurity and famine during 2010-2012"
+
+Frankema & Jerven (2013), "Writing history backwards or sideways: towards a consensus on african population, 1850-present"
+
+Gardarsdottir (2002), "Saving the child. Regional, cultural and social aspects of the infant mortality decline in Iceland, 1770-1920.", report number 19 from the demographic data base, Umeå University.
+
+Gaud & Morgan (1945), "Epidemiological study of relapsing fever in North Africa"
+
+Global Burden of Disease Collaborative Network. Global Burden of Disease Study 2019 (GBD 2019) Life Tables 1950-2019. Seattle, United States of America: Institute for Health Metrics and Evaluation (IHME), 2020.
+
+Gilbert (2008), "The Routledge atlas of the firts world war", third edition
+
+Greer (2005), "Counting civil war casualties, week-by-week, for the Lincoln presidential library and museum"
+
+Groenewold etal (2007), "Estimating mortality with the intercensus cohort component method: application to the solomon islands"
+
+Hacker (2011), "A census-based count of the civil war dead", civil war history, volume 57, number 4.
+
+Hamilton & Rasmussen (2009), "Population, Sex Ratios and Development in Greenland", Arctic 63 (1)
+
+Hays (2005), "Epidemics and pandemics. Thir impacts on human history"
+
+Highland, S. (1991), "World War II in Kiribati". In "Remembering the Pacific War", edited by Geoffrey M. White, 109-112. Occasional Paper series 36. Honolulu, Hawai‘i: Center for Pacific Islands Studies, School of Hawaiian, Asian, and Pacific Studies, University of Hawai‘i at Mānoa.
+
+Hill etal (2008), "The demographic impact of partition in the Punjab in 1947", population studies, vol. 62, no 2.
+
+The Human Life-Table Database. Joint project of the Max Planck Institute for Demographic Research (MPIDR) in Rostock, Germany, the Department of Demography at the University of California at Berkeley, USA and the Institut national d'études démographiques (INED) in Paris, France. Estimates from HLD is generally lessreliable than estimates from HMD.
+
+The Human Mortality Database. Joint project of the Department of Demography at the University of California, Berkeley, USA, and at the Max Planck Institute for Demographic Research in Rostock. Downloaded in 2009.
+
+The Human Mortality Database. Joint project of the Department of Demography at the University of California, Berkeley, USA, and at the Max Planck Institute for Demographic Research in Rostock. Downloaded in 2011. There has been som additions and some minor revisions since 2009.
+
+The Human Mortality Database. Joint project of the Department of Demography at the University of California, Berkeley, USA, and at the Max Planck Institute for Demographic Research in Rostock. Downloaded in 2013, july. There has been som additions and some minor revisions since 2011.
+
+Hubert (2009), "La population allemande: raptures et continuités"
+
+Johnsson & Mueller (2002), "Updating the accounts: global mortality of the 1918-1920 "Spanish" influenza pandemic", Bull Hist Med 76 (1)
+
+Kamal (2008), "Demography of Bengal: how much does the past explain the present?", paper presented at the 2008 European population conference, Princeton University
+
+Kannisto, Turpeinen & Nieminen (1999), "Finnish life tables since 1751", Demographic research 1 (1).
+
+Katus (2000), "Long term mortality trends in the Baltic countries"
+
+Kohn (editor) (2008), "Encyclopedia of Plague and Pestilence. From ancient times to the present"
+
+Krumins (1994), "Changing mortality patterns in Latvia, Lithuania, and Estonia", in "Demographic trends and patterns in the Soviet Union before 1991", edited by Lutz, Scherbov & Volkov
+
+Kuczynski (1948), "Demographic survey of the british colonial empire"
+
+Kumo etal (2007), "Long term population statistics for russia 1867-2002"
+
+Langford & Storey (1992), "Influenza in Sri Lanka, 1918-1919, the impact of a new disease in a pre-modern third world setting", health transition review, vol 2.
+
+Langford & Storey (1993), "Sex differentials in mortality early in the twentieth century: Sri Lanka and India compared." Population and development review 19 (2)
+
+Langford (1996), "Reasons for the decline in mortality in Sri Lanka immediately after the second world war: a reaxamination of the evidence", health transistion review 6.
+
+Latvijas Statistika (2013), on-line statistical database
+
+Lee & Feng (1999), "One quarter of humanity. Malthusian mythology and chinese realities."
+
+Lee, Jong-Wha and Hanol Lee, 2016, “Human Capital in the Long Run,” Journal of Development Economics, vol. 122, pp. 147-169.
+
+Luo, Sheng. 1988. "Reconstruction of Life Tables and Age Distributions for the Population of China, by Year, from 1953 to 1982". Unpublished PhD dissertation, University of Pennsylvania.
+
+Maison (1977), "La population de l'Algérie"
+
+Manniche (1997), "Den østdanske epidemi 1831", Historie/Jyske Samlinger, Bind 1997 (1997) - 2.
+
+Ministry of health (1920), "Report on the pandemic of influenza 1918-19.", Reports on public health and medical subjects, no. 4.
+
+Mitchell (2003), "International historical statistics", third edition (three volumes)
+
+Murray, Lopez, Chin, Feehand & Hill (2006), "Estimation of potential global pandemic influenza mortality on the basis of vital registry data from the 1918-20 pandemic: a quantitative analysis", Lancet 368: 2211-18 (In earlier versions this publications was referred to as "Hill etal")
+
+Myllyntaus (2009), "Summer frost. A natural hazard with fatal consequences in preindustrial Finland", in "Natural Disasters, Cultural Responses: Case Studies toward a Global Environmental History", edited bt Mauch & Pfister
+
+National statistics china (Taiwan) (2013), "Key Economic and Social Indicators"
+
+O Grada (2006), "Making famine history", Working Paper WP06/10
+
+O'Grada (2009), "Famine - a short history"
+
+Patterson (1993), "Typhus and its control in russia, 1870-1940."
+
+Post (1990), "The mortality crisis of the early 1770s and European demographic trends", Journal of interdisciplinary history, vol 21, no 1.
+
+Riley, James C (2005a), "Estimates of Regional and Global Life Expectancy, 1800–2001." Population and development review 31(3): 537–543 (September 2005)
+
+Riley, James C (2005b), "The Timing and Pace of Health Transitions around the World". Population and development review 31(4): 741–764 (December 2005)
+
+Riley, James C (no date) Bibliography of Works Providing Estimates of Life Expectancy at Birth and Estimates of the Beginning Period of Health Transitions in Countries with a Population in 2000 of at Least 400,000. Compiled by James C. Riley.
+
+Seklani (1974), "La population de la Tunisie"
+
+Shanks etal (2011), "Extreme mortality after first introduction of measles virus to the polynesian island of rotuma, 1911", Am J Epidemiol. 173 (10).
+
+Shanks, Hussel & Brundage (2012), "Epidemiological isolation causing variable mortality in island populations during the 1918-1920 influenza pandemic", Influenza and other respiratory viruses 6 (6).
+
+Sigrah & King (2001), "Te Rii Ni Banaba"
+
+Singiza (2011), "La famine Ruzagayura (Rwanda, 1943-1944), causes, conséquences et réactions des autorités"
+
+Smallman-Raynor & Cliff (1998), "The philippines insurrection and the 1902-4 cholera epidemic: Part II - Diffusion patterns in war and peace"
+
+1893-1978. Homepage by The university of queensland, Australia
+
+National Bureau of Statistics; "South Sudan Statistical Yearbook 2011."
+
+Spagnoll (1997), "The unique decline of mortality in revolutionary France"; Journal of Family History 22: 425
+
+Statistics and research Åland at www.asub.ax/start.con?iLan=2
+
+Statistics Estonia (2013), on-line statistical database
+
+Statistics Greenland (2013), statistikbanken
+
+A figure reported in "the straits times" october 23, 2011. They cite Taiwan Minisitry of Interior as their source.
+
+Thibon (2002), "Famine yesterday and today in Burundi", in "Famine demography. Perspectives from the past and present", edited by Dyson & O Grada.
+
+Tubutin etal (2001), "L'histoire de la population de l'Afrique du Nord pendant le deuxième millénaire"
+
+Turpeinen (1979), "Fertility and mortality in Finland since 1750", Population studie, vol 33, no 1.
+
+U.S. Census Bureau, Statistical Abstract of the United States: 2012 (131st Edition) Washington, DC, 2011
+
+UNDP (United Nations Development Programme). Statistical Update 2018. UNDP, 2018, http://report2017.archive.s3-website-us-east-1.amazonaws.com.
+
+Vallin J., and Meslé, F. (2001), "Tables de mortalité francaises pour les XIX et XX siècles et projections pour le XXI siècle". Donneés Statistiques. N4-2001. (HLD)
+
+Vallin etal (2002), "A new estimate of Ukrainian population losses during the crises of the 1930s and 1940s". Population Studies: A Journal of Demography, Volume 56, Issue 3
+
+Vallin etal (2012), "Chapter 2: the crisis of the 1930s", in "Mortality and causes of death in 20th century Ukraine", Meslé & Vallin (ed)
+
+Webb & Braun (1994), "Famine and food security in Ethiopia. Lessons for Africa", IFPRI
+
+White, Mathew (2014), "Necrometrics - death tolls across history", homepage, accessed in beginning of 2014.
+
+United Nations, Department of Economic and Social Affairs, Population Division (2019). World Population
+Prospects 2019: Highlights (ST/ESA/SER.A/423).
+
+United Nations Population Division. World Population Prospects: The 2006 Revision. Life expectancy at birth, both sexes.
+
+United Nations Population Division. World Population Prospects: The 2010 Revision. Life expectancy at birth, both sexes.
+
+United Nations Population Division. World Population Prospects: The 2012 Revision. Life expectancy at birth, both sexes.
+
+Wrigley & Schofield (1989), "The population history of England 1541-1871. A reconstruction"
+
+Wrigley etal (1997), "English population from family reconstitution 1580-1837".
