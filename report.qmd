@@ -35,6 +35,7 @@ lex: The number of years a newborn infant would live if the current mortality ra
  
 (Africa Watch 1991; Andreev et al. 1998; Ansart et al. 2009; Bell & Miller n.d.; Bernhard 2012; Blayo 1975; Boyle & Ó Gráda 1986; Brunborg 1976; Caldwell et al. 1986; Cameron 2012; Correlates of War n.d.; Devereux 2000; Dyson & Ó Gráda 2002; Dyson 1991; Electoral Institute for Sustainable Democracy in Africa 2009; Eisner 1961; Ellman 2007; Estonian Interuniversity Population Research Centre 2013; FEWS NET 2013; Frankema & Jerven 2013; Gardarsdottir 2002; Gaud & Morgan 1945; Gilbert 2008; GBD 2019; Greer 2005; Groenewold et al. 2007; Hacker 2011; Hamilton & Rasmussen 2009; Hays 2005; Highland 1991; Hill et al. 2008; Human Life-Table Database n.d.; Human Mortality Database 2009, 2011, 2013; Hubert 2009; Johnson & Mueller 2002; Kamal 2008; Kannisto et al. 1999; Katus 2000; Kohn 2008; Krumins 1994; Kuczynski 1948; Kumo et al. 2007; Langford & Storey 1992, 1993; Langford 1996; Latvijas Statistika 2013; Lee & Feng 1999; Luo 1988; Maison 1977; Manniche 1997; Ministry of Health 1920; Mitchell 2003; Murray et al. 2006; Myllyntaus 2009; National Statistics China (Taiwan) 2013; Ó Gráda 2006, 2009; Patterson 1993; Post 1990; Riley 2005a, 2005b, n.d.; Seklani 1974; Shanks et al. 2011, 2012; Sigrah & King 2001; Singiza 2011; Smallman-Raynor & Cliff 1998; Spagnol 1997; Statistics and Research Åland n.d.; Statistics Estonia 2013; Statistics Greenland 2013; Straits Times 2011; Thibon 2002; Tubutin et al. 2001; Turpeinen 1979; U.S. Census Bureau 2011; Vallin & Meslé 2001; Vallin et al. 2002, 2012; Webb & Braun 1994; White 2014; UN Population Division 2006, 2010, 2012, 2019; Wrigley & Schofield 1989; Wrigley et al. 1997)
 
+
 edu: Education index calculated based on Avg years of schooling, taking values 0 as minimum and 15 as maximum.
 
 (Barro-Lee 2018; Lee-Lee 2016; UNDP 2018)
@@ -74,8 +75,9 @@ joined |>
 ```
 
 outside source supporting hypothesis:
+(McGill 2016)
 
-<https://www.thenationshealth.org/content/46/6/1.3>
+
 
 ## Bibliography
 Africa watch, de Waal (1991), "Evil days. 30 years of war and famine in Ethiopia.", An Africa Watch report.
@@ -94,7 +96,7 @@ Blayo (1975 I), "La mortalité en France de 1740 à 1829", Population, 30e anné
 
 Boyle and o'Grada (1986), "Fertility trends, excess mortality, and the Great Irish Famine", Demography, vol 23, no 4, pp. 543-562.
 
-Brunborg, Helge. 1976. The Inverse Projection Method Applied To Norway, 1735-1974, Unpublished typescript.
+Brunborg, Helge (1976), The Inverse Projection Method Applied To Norway, 1735-1974, Unpublished typescript.
 
 Caldwell etal (1986), "Population trends in China - a perspective provided by the 1982 census", in "A census of one billion people. Papers for international seminar on China's 1982 population census", chief editor Chengrui.
 
@@ -180,13 +182,15 @@ Latvijas Statistika (2013), on-line statistical database
 
 Lee & Feng (1999), "One quarter of humanity. Malthusian mythology and chinese realities."
 
-Lee, Jong-Wha and Hanol Lee, 2016, “Human Capital in the Long Run,” Journal of Development Economics, vol. 122, pp. 147-169.
+Lee, Jong-Wha and Hanol Lee (2016), “Human Capital in the Long Run,” Journal of Development Economics, vol. 122, pp. 147-169.
 
 Luo, Sheng. 1988. "Reconstruction of Life Tables and Age Distributions for the Population of China, by Year, from 1953 to 1982". Unpublished PhD dissertation, University of Pennsylvania.
 
 Maison (1977), "La population de l'Algérie"
 
 Manniche (1997), "Den østdanske epidemi 1831", Historie/Jyske Samlinger, Bind 1997 (1997) - 2.
+
+McGill, N. (2016). Education attainment linked to health throughout lifespan: Exploring social determinants of health. The Nation’s Health, 46(6), 1–19. https://www.thenationshealth.org/content/46/6/1.3
 
 Ministry of health (1920), "Report on the pandemic of influenza 1918-19.", Reports on public health and medical subjects, no. 4.
 
