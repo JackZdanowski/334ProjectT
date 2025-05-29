@@ -23,6 +23,9 @@ library(ggplot2)
 library(dplyr)
 library(tidyr)
 library(forcats)
+library(gganimate)
+library(gifski)
+library(countrycode)
 ```
 
 ```{r}
@@ -75,6 +78,69 @@ joined |>
 ```
 
 Figure 1: Missing education data by country and year (1990–2017). Taiwan, South Korea, and Somalia show consistently missing data and were excluded.
+
+## Data Visualization
+
+Aggregated Plot
+
+```{r}
+# Aggregate to one row per country
+agg_data <- clean |>
+  group_by(country) |>
+  summarize(mean_edu = mean(education, na.rm = TRUE),
+            mean_lex = mean(life_expectancy, na.rm = TRUE))
+
+# Static plot
+ggplot(agg_data, aes(x = mean_edu, y = mean_lex)) +
+  geom_point() +
+  labs(title = "Mean Years of Schooling vs. Life Expectancy by Country",
+       x = "Mean Years of Schooling (2000–2017)",
+       y = "Life Expectancy at Birth (2000–2017)") +
+  theme_minimal()
+
+```
+
+Animated Plot
+
+```{r}
+p <- clean |>
+  mutate(continent = countrycode(country, 
+                                 origin = "country.name", 
+                                 destination = "continent")) |>
+  ggplot(aes(x = education, y = life_expectancy)) +
+  geom_point(alpha = 0.7) +
+  labs(title = "Education vs Life Expectancy Over Time",
+       subtitle = "Year: {frame_time}",
+       x = "Mean Years of Schooling",
+       y = "Life Expectancy at Birth",
+       color = "Continent") +
+  transition_time(as.integer(year)) +
+  ease_aes('linear') +
+  theme_minimal()
+
+# Render the animation
+anim <- animate(p, renderer = gifski_renderer(loop = TRUE), fps = 10, duration = 8, width = 800, height = 600)
+
+# Save the GIF
+anim_save("education_lifeexp.gif", animation = anim)
+```
+
+![Education vs Life Expectancy](education_lifeexp.gif)
+
+## Linear Regression
+
+We used the same aggregate data that we coded earlier for the single scatter plot. This data takes the average of each country's life expectancy and the average of their years of education and plots them against each other.
+
+```{r}
+reg0 <- lm(mean_lex ~ mean_edu, data = agg_data)
+summary(reg0)
+plot(mean_lex ~ mean_edu, agg_data, pch = 19, col = "steelblue", 
+     main = "Average Life Expectacy vs. Average Years in School per Country",
+     xlab = "Average Years in School",
+     ylab = "")
+mtext("Average Life Expectancy", side = 3, line = 0.5, cex = 0.9, adj = 0)
+abline(reg0, col = "steelblue")
+```
 
 ## Bibliography
 
