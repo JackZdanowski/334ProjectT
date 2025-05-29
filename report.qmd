@@ -26,6 +26,9 @@ library(forcats)
 library(gganimate)
 library(gifski)
 library(countrycode)
+library(RColorBrewer)
+library(kableExtra)
+library(broom)
 ```
 
 ```{r}
@@ -88,35 +91,70 @@ Aggregated Plot
 agg_data <- clean |>
   group_by(country) |>
   summarize(mean_edu = mean(education, na.rm = TRUE),
-            mean_lex = mean(life_expectancy, na.rm = TRUE))
+            mean_lex = mean(life_expectancy, na.rm = TRUE)) |>
+  mutate(continent = countrycode(country, 
+                                 origin = "country.name", 
+                                 destination = "continent"))
 
 # Static plot
-ggplot(agg_data, aes(x = mean_edu, y = mean_lex)) +
-  geom_point() +
+ggplot(agg_data, aes(x = mean_edu, 
+                     y = mean_lex, 
+                     color = continent)) +
+  geom_point(size = 3) +
+  scale_color_manual(
+    values = {
+      col <- RColorBrewer::brewer.pal(5, "BrBG")
+      col[3] <- "#d3d3d3"
+      setNames(col, c("Africa", "Americas", "Asia", "Europe", "Oceania"))
+    }) +
   labs(title = "Mean Years of Schooling vs. Life Expectancy by Country",
        x = "Mean Years of Schooling (2000–2017)",
-       y = "Life Expectancy at Birth (2000–2017)") +
+       y = "Life Expectancy at Birth (2000–2017)",
+       color = "Continent") +
   theme_minimal()
 
+
+
 ```
+
+In our aggregated plot showing the relationship between Mean Years of Schooling and Life Expectancy by country, we can see that there does exist a moderately strong positive linear relationship. We also can see that both the mean years of schooling and life expectancy is lowest in countries in Africa, and highest in countries in Europe, with countries in the Americas and Asia sprinkled near the top, and countries in Oceania are pretty spread out across the graph.
 
 Animated Plot
 
 ```{r}
+#| eval: FALSE
+
 p <- clean |>
   mutate(continent = countrycode(country, 
                                  origin = "country.name", 
                                  destination = "continent")) |>
-  ggplot(aes(x = education, y = life_expectancy)) +
-  geom_point(alpha = 0.7) +
+  ggplot(aes(x = education, 
+             y = life_expectancy, 
+             color = continent)) +
+  geom_point(size = 2.5) +
+  scale_color_manual(
+    values = {
+      col <- RColorBrewer::brewer.pal(5, "BrBG")
+      col[3] <- "#d3d3d3"
+      setNames(col, c("Africa", "Americas", "Asia", "Europe", "Oceania"))
+    }) +
   labs(title = "Education vs Life Expectancy Over Time",
-       subtitle = "Year: {frame_time}",
+       subtitle = "Year: {frame_time}\nLife Expectancy at Birth",
        x = "Mean Years of Schooling",
-       y = "Life Expectancy at Birth",
+       y = "",
        color = "Continent") +
   transition_time(as.integer(year)) +
   ease_aes('linear') +
-  theme_minimal()
+  coord_cartesian(ylim = c(40, NA)) +
+  theme_minimal() +
+  theme(axis.title.x = element_text(size = 15),
+        axis.title.y = element_blank(),
+        axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12),
+        plot.title = element_text(size = 25, face = "bold"),
+        plot.subtitle = element_text(size = 15, margin = margin(t = 10, b = 15)),
+        legend.title = element_text(size = 15),
+        legend.text = element_text(size = 12))
 
 # Render the animation
 anim <- animate(p, renderer = gifski_renderer(loop = TRUE), fps = 10, duration = 8, width = 800, height = 600)
@@ -125,22 +163,83 @@ anim <- animate(p, renderer = gifski_renderer(loop = TRUE), fps = 10, duration =
 anim_save("education_lifeexp.gif", animation = anim)
 ```
 
-![Education vs Life Expectancy](education_lifeexp.gif)
+![Animated Plot](education_lifeexp.gif)
+
+In our animated plot, we can see how even though the years included in the study are very recent, how every country is seemingly increasing their Mean Years of Schooling and their Life Expectancy. This is definitely most easily seen when the animation restarts, you can see the progress made by 2017 once it resets to 2000 very well. Over the years, the linear relationship remains, and in fact appears to grow stronger. This illustrates just how well related these two variables are.
 
 ## Linear Regression
 
 We used the same aggregate data that we coded earlier for the single scatter plot. This data takes the average of each country's life expectancy and the average of their years of education and plots them against each other.
 
 ```{r}
-reg0 <- lm(mean_lex ~ mean_edu, data = agg_data)
-summary(reg0)
-plot(mean_lex ~ mean_edu, agg_data, pch = 19, col = "steelblue", 
-     main = "Average Life Expectacy vs. Average Years in School per Country",
+continent_colors <- {
+  col <- RColorBrewer::brewer.pal(5, "BrBG")
+  col[3] <- "#d3d3d3"
+  setNames(col, c("Africa", "Americas", "Asia", "Europe", "Oceania"))
+}
+
+plot(mean_lex ~ mean_edu, agg_data,
+     pch = 19,
+     col = continent_colors[agg_data$continent],
+     main = "Average Life Expectancy vs. Average Years in School per Country",
      xlab = "Average Years in School",
      ylab = "")
+
 mtext("Average Life Expectancy", side = 3, line = 0.5, cex = 0.9, adj = 0)
-abline(reg0, col = "steelblue")
+
+reg0 <- lm(mean_lex ~ mean_edu, data = agg_data)
+abline(reg0, col = "black")
+
+legend("bottomright", legend = names(continent_colors), col = continent_colors, pch = 19, bty = "n")
+
 ```
+
+Once again, our linear fairly strong, positive relationship is highlighted, especially with the inclusion of the regression line. This is pretty much the same graph as before.
+
+```{r}
+broom::tidy(reg0) |>
+  kable(col.names = c("Term", "Coefficient", "Standard Error", "T-Value", "P-Value"),
+        caption = "Simple Linear Regression Output") |>
+  kable_styling(full_width = FALSE,
+                position = "left",
+                font_size = 14,
+                bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+```
+
+We fit a simple linear regression model to predict a country's average life expectancy ($\hat{y}$) based on its average years of schooling ($mean\_edu$). The fitted regression equation is:
+
+$$
+\hat{y} = 54.941 + 0.289(mean\_edu)
+$$
+
+This means that for every additional year of schooling, a country's average life expectancy is expected to increase by approximately 0.289 years.
+
+## Model Fit
+
+```{r}
+# Variance calculations
+A <- var(agg_data$mean_lex)
+B <- var(fitted(reg0))
+res_var <- var(residuals(reg0))
+R2 <- B / A
+
+# Table Code
+tibble(Metric = c("Variance in response (A)",
+                  "Variance in fitted values (B)",
+                  "Variance in residuals",
+                  "Model $R^2$ (B / A)"),
+       Value = c(A, B, res_var, R2)) |>
+  mutate(Value = round(Value, 2)) |>
+  kable(format = "html",
+        caption = "Model Fit Statistics",
+        escape = FALSE) |>
+  kable_styling(full_width = FALSE,
+                position = "left",
+                font_size = 14,
+                bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+```
+
+The $R^2$ value is $0.49$, which means about $49\%$ of the variation in Average Life Expectancy can be explained by Average Years of Schooling. This value is pretty high considering there is only one term in the model. Having that much explanatory power is a good sign that the two variables are related.
 
 ## Bibliography
 
