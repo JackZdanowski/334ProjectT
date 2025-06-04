@@ -1,16 +1,16 @@
 ---
 title: "Final Project: Gapminder"
-author: "Andrew Dang"
+author: "Andrew Dang, Dennis Kulik, Andrew Loader, Jack Zdanowski"
 format: 
   html:
     embed-resources: true
-    code-tools: true
+    code-tools: false
     toc: true
-    code-fold: true
+    code-fold: false
 editor: source
 execute: 
   error: true
-  echo: true
+  echo: false
   message: false
   warning: false
 ---
@@ -22,26 +22,417 @@ library(readr)
 library(ggplot2)
 library(dplyr)
 library(tidyr)
+library(forcats)
+library(gganimate)
+library(gifski)
+library(countrycode)
+library(RColorBrewer)
+library(kableExtra)
+library(broom)
 ```
 
 ```{r}
 # load data
-lex <- read_csv("./data/lex.csv")
-edu <- read_csv("./data/owid_education_idx.csv")
+lex <- read_csv("./data/lex.csv", 
+                col_types = cols(.default = col_double(), country = col_character()))
+edu <- read_csv("./data/owid_education_idx.csv", 
+                col_types = cols(.default = col_double(), country = col_character()))
 ```
 
-lex:
-The number of years a newborn infant would live if the current mortality rates at different ages were to stay the same throughout its life.
-
-edu:
-Education index calculated based on Avg years of schooling, taking values 0 as minimum and 15 as maximum.
-
 ```{r}
-# maybe we want to do a full join instead of an inner join
-clean <- lex |>
+joined <- lex |>
   pivot_longer(matches("^[[:digit:]]+"), names_to = "year", values_to = "life_expectancy") |>
   inner_join(edu |>
                pivot_longer(matches("^[[:digit:]]+"), names_to = "year", values_to = "education"),
              by = join_by(country, year))
+
+clean <- joined |> 
+  filter(year >= 2000,
+         !country %in% c("Taiwan", "South Korea", "Somalia"))
 ```
 
+## 1. Introduction
+
+This project compares the relationship between life expectancy at birth and mean years of schooling across countries and years, using data sourced from Gapminder. Life expectancy at birth represents the number of years a newborn would live if current mortality rates did not change throughout its life. Mean years of schooling refers to the average of all education levels completed by adults aged between 25 and 64.
+
+The life expectancy data is compiled from multiple sources. The primary source from 1800–1970 is Gapminder’s version 7 dataset, which is compiled from 100 sources by Klara Johansson and Mattias Lindgren, with estimates to account for major historical events like famines or wars. For 1950–2019, data comes from the Global Burden of Disease Study 2019 by the Institute for Health Metrics and Evaluation (IHME). The United Nations World Population Prospects 2022 were used to estimate data from 2020–2100. The mean years of schooling data combines estimates from Lee-Lee (2016) for 1870–1949 (population aged 25–64), Barro-Lee (2018) for 1950–1990 (population aged 25+), and the United Nations Development Programme (UNDP) Human Development Report (2018) for 1991–2017 (population aged 25+).
+
+We hypothesize a moderate to strong positive relationship between mean years of schooling and life expectancy, with higher levels of education correlating with longer life expectancy. This is to be expected, because education is often tied to improved health literacy, better access to healthcare, and improved socioeconomic opportunities, and this connection is supported by The Nation’s Health, a publication of the American Public Health Association (McGill 2016).
+
+## 2. Data Cleaning
+
+Overall, minimal data cleaning needed to be done with these datasets. The mean years of schooling dataset was filtered to exclude years prior to 2000, as many of the years had missing values and sparse coverage. Additionally, Taiwan, South Korea, and Somalia were dropped due to consistently missing education information throughout the entire period. These decisions isolated the analysis to recent, well-documented data, specifically from the years 2000 to 2017.
+
+```{r, fig.height=6}
+joined |> 
+  filter(year >= 1990,
+         is.na(education)) |> 
+  ggplot(aes(x = year, y = country)) +
+  geom_point(color = "black") +
+  labs(
+    title = "Missing Education Data by Country and Year",
+    subtitle = "Excluding countries without missing data from 1990-2017",
+    x = "Year",
+    y = "Country"
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+```
+
+Figure 1: Missing education data by country and year (1990–2017). Taiwan, South Korea, and Somalia show consistently missing data and were excluded.
+
+## Data Visualization
+
+Aggregated Plot
+
+```{r}
+# Aggregate to one row per country
+agg_data <- clean |>
+  group_by(country) |>
+  summarize(mean_edu = mean(education, na.rm = TRUE),
+            mean_lex = mean(life_expectancy, na.rm = TRUE)) |>
+  mutate(continent = countrycode(country, 
+                                 origin = "country.name", 
+                                 destination = "continent"))
+
+# Static plot
+ggplot(agg_data, aes(x = mean_edu, 
+                     y = mean_lex, 
+                     color = continent)) +
+  geom_point(size = 3) +
+  scale_color_manual(
+    values = {
+      col <- RColorBrewer::brewer.pal(5, "BrBG")
+      col[3] <- "#d3d3d3"
+      setNames(col, c("Africa", "Americas", "Asia", "Europe", "Oceania"))
+    }) +
+  labs(title = "Mean Years of Schooling vs. Life Expectancy by Country",
+       x = "Mean Years of Schooling (2000–2017)",
+       y = "Life Expectancy at Birth (2000–2017)",
+       color = "Continent") +
+  theme_minimal()
+
+
+
+```
+
+In our aggregated plot showing the relationship between Mean Years of Schooling and Life Expectancy by country, we can see that there does exist a moderately strong positive linear relationship. We also can see that both the mean years of schooling and life expectancy is lowest in countries in Africa, and highest in countries in Europe, with countries in the Americas and Asia sprinkled near the top, and countries in Oceania are pretty spread out across the graph.
+
+Animated Plot
+
+```{r}
+#| eval: FALSE
+
+p <- clean |>
+  mutate(continent = countrycode(country, 
+                                 origin = "country.name", 
+                                 destination = "continent")) |>
+  ggplot(aes(x = education, 
+             y = life_expectancy, 
+             color = continent)) +
+  geom_point(size = 2.5) +
+  scale_color_manual(
+    values = {
+      col <- RColorBrewer::brewer.pal(5, "BrBG")
+      col[3] <- "#d3d3d3"
+      setNames(col, c("Africa", "Americas", "Asia", "Europe", "Oceania"))
+    }) +
+  labs(title = "Education vs Life Expectancy Over Time",
+       subtitle = "Year: {frame_time}\nLife Expectancy at Birth",
+       x = "Mean Years of Schooling",
+       y = "",
+       color = "Continent") +
+  transition_time(as.integer(year)) +
+  ease_aes('linear') +
+  coord_cartesian(ylim = c(40, NA)) +
+  theme_minimal() +
+  theme(axis.title.x = element_text(size = 15),
+        axis.title.y = element_blank(),
+        axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12),
+        plot.title = element_text(size = 25, face = "bold"),
+        plot.subtitle = element_text(size = 15, margin = margin(t = 10, b = 15)),
+        legend.title = element_text(size = 15),
+        legend.text = element_text(size = 12))
+
+# Render the animation
+anim <- animate(p, renderer = gifski_renderer(loop = TRUE), fps = 10, duration = 8, width = 800, height = 600)
+
+# Save the GIF
+anim_save("education_lifeexp.gif", animation = anim)
+```
+
+![Animated Plot](education_lifeexp.gif)
+
+In our animated plot, we can see how even though the years included in the study are very recent, how every country is seemingly increasing their Mean Years of Schooling and their Life Expectancy. This is definitely most easily seen when the animation restarts, you can see the progress made by 2017 once it resets to 2000 very well. Over the years, the linear relationship remains, and in fact appears to grow stronger. This illustrates just how well related these two variables are.
+
+## Linear Regression
+
+We used the same aggregate data that we coded earlier for the single scatter plot. This data takes the average of each country's life expectancy and the average of their years of education and plots them against each other.
+
+```{r}
+continent_colors <- {
+  col <- RColorBrewer::brewer.pal(5, "BrBG")
+  col[3] <- "#d3d3d3"
+  setNames(col, c("Africa", "Americas", "Asia", "Europe", "Oceania"))
+}
+
+plot(mean_lex ~ mean_edu, agg_data,
+     pch = 19,
+     col = continent_colors[agg_data$continent],
+     main = "Average Life Expectancy vs. Average Years in School per Country",
+     xlab = "Average Years in School",
+     ylab = "")
+
+mtext("Average Life Expectancy", side = 3, line = 0.5, cex = 0.9, adj = 0)
+
+reg0 <- lm(mean_lex ~ mean_edu, data = agg_data)
+abline(reg0, col = "black")
+
+legend("bottomright", legend = names(continent_colors), col = continent_colors, pch = 19, bty = "n")
+
+```
+
+Once again, our linear fairly strong, positive relationship is highlighted, especially with the inclusion of the regression line. This is pretty much the same graph as before.
+
+```{r}
+broom::tidy(reg0) |>
+  kable(col.names = c("Term", "Coefficient", "Standard Error", "T-Value", "P-Value"),
+        caption = "Simple Linear Regression Output") |>
+  kable_styling(full_width = FALSE,
+                position = "left",
+                font_size = 14,
+                bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+```
+
+We fit a simple linear regression model to predict a country's average life expectancy ($\hat{y}$) based on its average years of schooling ($mean\_edu$). The fitted regression equation is:
+
+$$
+\hat{y} = 54.941 + 0.289(mean\_edu)
+$$
+
+This means that for every additional year of schooling, a country's average life expectancy is expected to increase by approximately 0.289 years.
+
+## Model Fit
+
+```{r}
+# Variance calculations
+A <- var(agg_data$mean_lex)
+B <- var(fitted(reg0))
+res_var <- var(residuals(reg0))
+R2 <- B / A
+
+# Table Code
+tibble(Metric = c("Variance in response (A)",
+                  "Variance in fitted values (B)",
+                  "Variance in residuals",
+                  "Model $R^2$ (B / A)"),
+       Value = c(A, B, res_var, R2)) |>
+  mutate(Value = round(Value, 2)) |>
+  kable(format = "html",
+        caption = "Model Fit Statistics",
+        escape = FALSE) |>
+  kable_styling(full_width = FALSE,
+                position = "left",
+                font_size = 14,
+                bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+```
+
+The $R^2$ value is $0.49$, which means about $49\%$ of the variation in Average Life Expectancy can be explained by Average Years of Schooling. This value is pretty high considering there is only one term in the model. Having that much explanatory power is a good sign that the two variables are related.
+
+## Bibliography
+
+Africa watch, de Waal (1991), "Evil days. 30 years of war and famine in Ethiopia.", An Africa Watch report.
+
+Andreev etal (1998), "Demographic history of Russia: 1927-1959" (In russian) (cited in e2744).
+
+Ansart etal (2009), "Mortality burden of the 1918-1919 influenza pandemic in Europe", Influenza and other respiratory viruses 3 (3), 99-106.
+
+Barro, Robert and Jong-Wha Lee, 2018, “A New Data Set of Educational Attainment in the World, 1950-2010.” Journal of Development Economics, vol 104, pp.184-198.
+
+Bell, Felicitie C. & Miller, Michael L. Life Tables for the United States Social Security Area 1900-2100 Actuarial Study No. 116
+
+Bernhard (2012), "Behind the battle lines: Italian atrocities and the persecution of arabs, berbers, and jews in North africa during world war II", Holocaust and Genocide studies, volume 26, number 3, winter 2012.
+
+Blayo (1975 I), "La mortalité en France de 1740 à 1829", Population, 30e année, no 1, pp 123-142.
+
+Boyle and o'Grada (1986), "Fertility trends, excess mortality, and the Great Irish Famine", Demography, vol 23, no 4, pp. 543-562.
+
+Brunborg, Helge (1976), The Inverse Projection Method Applied To Norway, 1735-1974, Unpublished typescript.
+
+Caldwell etal (1986), "Population trends in China - a perspective provided by the 1982 census", in "A census of one billion people. Papers for international seminar on China's 1982 population census", chief editor Chengrui.
+
+Cameron (2012), "The hungry steppe: Famine, mass violence and the making of Soviet Kazakhstan", Scholar research brief
+
+Correlates of War
+
+Devereux (2000), "Famine in the twentieth century", IDS Working Paper 105
+
+Dyson & O Grada (2002), "Famine demography"
+
+Dyson (1991), "On the demography of South Asian famines part II", Population studies, vol 45, no. 2.
+
+Electoral institute for sustainable democracy in Africa (2009), "Mauritius: socio-economic change and political conflict (1910-1945)"
+
+Eisner (1961), "Jamaica 1830-1930. A study in economic growth".
+
+Ellman (2007), "Stalin and the Soviet famine 1932-33 revisited"
+
+Estonian Interuniversity Population Research Centre: Theme B: Historical demography
+
+Estonian Interuniversity Population Research Centre (database), mortality data, accessed in 2013.
+
+FEWS NET (2013), "Mortality among populations of southern and central Somalia affected by severe food insecurity and famine during 2010-2012"
+
+Frankema & Jerven (2013), "Writing history backwards or sideways: towards a consensus on african population, 1850-present"
+
+Gardarsdottir (2002), "Saving the child. Regional, cultural and social aspects of the infant mortality decline in Iceland, 1770-1920.", report number 19 from the demographic data base, Umeå University.
+
+Gaud & Morgan (1945), "Epidemiological study of relapsing fever in North Africa"
+
+Global Burden of Disease Collaborative Network. Global Burden of Disease Study 2019 (GBD 2019) Life Tables 1950-2019. Seattle, United States of America: Institute for Health Metrics and Evaluation (IHME), 2020.
+
+Gilbert (2008), "The Routledge atlas of the firts world war", third edition
+
+Greer (2005), "Counting civil war casualties, week-by-week, for the Lincoln presidential library and museum"
+
+Groenewold etal (2007), "Estimating mortality with the intercensus cohort component method: application to the solomon islands"
+
+Hacker (2011), "A census-based count of the civil war dead", civil war history, volume 57, number 4.
+
+Hamilton & Rasmussen (2009), "Population, Sex Ratios and Development in Greenland", Arctic 63 (1)
+
+Hays (2005), "Epidemics and pandemics. Thir impacts on human history"
+
+Highland, S. (1991), "World War II in Kiribati". In "Remembering the Pacific War", edited by Geoffrey M. White, 109-112. Occasional Paper series 36. Honolulu, Hawai‘i: Center for Pacific Islands Studies, School of Hawaiian, Asian, and Pacific Studies, University of Hawai‘i at Mānoa.
+
+Hill etal (2008), "The demographic impact of partition in the Punjab in 1947", population studies, vol. 62, no 2.
+
+The Human Life-Table Database. Joint project of the Max Planck Institute for Demographic Research (MPIDR) in Rostock, Germany, the Department of Demography at the University of California at Berkeley, USA and the Institut national d'études démographiques (INED) in Paris, France. Estimates from HLD is generally lessreliable than estimates from HMD.
+
+The Human Mortality Database. Joint project of the Department of Demography at the University of California, Berkeley, USA, and at the Max Planck Institute for Demographic Research in Rostock. Downloaded in 2009.
+
+The Human Mortality Database. Joint project of the Department of Demography at the University of California, Berkeley, USA, and at the Max Planck Institute for Demographic Research in Rostock. Downloaded in 2011. There has been som additions and some minor revisions since 2009.
+
+The Human Mortality Database. Joint project of the Department of Demography at the University of California, Berkeley, USA, and at the Max Planck Institute for Demographic Research in Rostock. Downloaded in 2013, july. There has been som additions and some minor revisions since 2011.
+
+Hubert (2009), "La population allemande: raptures et continuités"
+
+Johnsson & Mueller (2002), "Updating the accounts: global mortality of the 1918-1920 "Spanish" influenza pandemic", Bull Hist Med 76 (1)
+
+Kamal (2008), "Demography of Bengal: how much does the past explain the present?", paper presented at the 2008 European population conference, Princeton University
+
+Kannisto, Turpeinen & Nieminen (1999), "Finnish life tables since 1751", Demographic research 1 (1).
+
+Katus (2000), "Long term mortality trends in the Baltic countries"
+
+Kohn (editor) (2008), "Encyclopedia of Plague and Pestilence. From ancient times to the present"
+
+Krumins (1994), "Changing mortality patterns in Latvia, Lithuania, and Estonia", in "Demographic trends and patterns in the Soviet Union before 1991", edited by Lutz, Scherbov & Volkov
+
+Kuczynski (1948), "Demographic survey of the british colonial empire"
+
+Kumo etal (2007), "Long term population statistics for russia 1867-2002"
+
+Langford & Storey (1992), "Influenza in Sri Lanka, 1918-1919, the impact of a new disease in a pre-modern third world setting", health transition review, vol 2.
+
+Langford & Storey (1993), "Sex differentials in mortality early in the twentieth century: Sri Lanka and India compared." Population and development review 19 (2)
+
+Langford (1996), "Reasons for the decline in mortality in Sri Lanka immediately after the second world war: a reaxamination of the evidence", health transistion review 6.
+
+Latvijas Statistika (2013), on-line statistical database
+
+Lee & Feng (1999), "One quarter of humanity. Malthusian mythology and chinese realities."
+
+Lee, Jong-Wha and Hanol Lee (2016), “Human Capital in the Long Run,” Journal of Development Economics, vol. 122, pp. 147-169.
+
+Luo, Sheng. 1988. "Reconstruction of Life Tables and Age Distributions for the Population of China, by Year, from 1953 to 1982". Unpublished PhD dissertation, University of Pennsylvania.
+
+Maison (1977), "La population de l'Algérie"
+
+Manniche (1997), "Den østdanske epidemi 1831", Historie/Jyske Samlinger, Bind 1997 (1997) - 2.
+
+McGill, N. (2016). Education attainment linked to health throughout lifespan: Exploring social determinants of health. The Nation’s Health, 46(6), 1–19. https://www.thenationshealth.org/content/46/6/1.3
+
+Ministry of health (1920), "Report on the pandemic of influenza 1918-19.", Reports on public health and medical subjects, no. 4.
+
+Mitchell (2003), "International historical statistics", third edition (three volumes)
+
+Murray, Lopez, Chin, Feehand & Hill (2006), "Estimation of potential global pandemic influenza mortality on the basis of vital registry data from the 1918-20 pandemic: a quantitative analysis", Lancet 368: 2211-18 (In earlier versions this publications was referred to as "Hill etal")
+
+Myllyntaus (2009), "Summer frost. A natural hazard with fatal consequences in preindustrial Finland", in "Natural Disasters, Cultural Responses: Case Studies toward a Global Environmental History", edited bt Mauch & Pfister
+
+National statistics china (Taiwan) (2013), "Key Economic and Social Indicators"
+
+O Grada (2006), "Making famine history", Working Paper WP06/10
+
+O'Grada (2009), "Famine - a short history"
+
+Patterson (1993), "Typhus and its control in russia, 1870-1940."
+
+Post (1990), "The mortality crisis of the early 1770s and European demographic trends", Journal of interdisciplinary history, vol 21, no 1.
+
+Riley, James C (2005a), "Estimates of Regional and Global Life Expectancy, 1800–2001." Population and development review 31(3): 537–543 (September 2005)
+
+Riley, James C (2005b), "The Timing and Pace of Health Transitions around the World". Population and development review 31(4): 741–764 (December 2005)
+
+Riley, James C (no date) Bibliography of Works Providing Estimates of Life Expectancy at Birth and Estimates of the Beginning Period of Health Transitions in Countries with a Population in 2000 of at Least 400,000. Compiled by James C. Riley.
+
+Seklani (1974), "La population de la Tunisie"
+
+Shanks etal (2011), "Extreme mortality after first introduction of measles virus to the polynesian island of rotuma, 1911", Am J Epidemiol. 173 (10).
+
+Shanks, Hussel & Brundage (2012), "Epidemiological isolation causing variable mortality in island populations during the 1918-1920 influenza pandemic", Influenza and other respiratory viruses 6 (6).
+
+Sigrah & King (2001), "Te Rii Ni Banaba"
+
+Singiza (2011), "La famine Ruzagayura (Rwanda, 1943-1944), causes, conséquences et réactions des autorités"
+
+Smallman-Raynor & Cliff (1998), "The philippines insurrection and the 1902-4 cholera epidemic: Part II - Diffusion patterns in war and peace"
+
+1893-1978. Homepage by The university of queensland, Australia
+
+National Bureau of Statistics; "South Sudan Statistical Yearbook 2011."
+
+Spagnoll (1997), "The unique decline of mortality in revolutionary France"; Journal of Family History 22: 425
+
+Statistics and research Åland at www.asub.ax/start.con?iLan=2
+
+Statistics Estonia (2013), on-line statistical database
+
+Statistics Greenland (2013), statistikbanken
+
+A figure reported in "the straits times" october 23, 2011. They cite Taiwan Minisitry of Interior as their source.
+
+Thibon (2002), "Famine yesterday and today in Burundi", in "Famine demography. Perspectives from the past and present", edited by Dyson & O Grada.
+
+Tubutin etal (2001), "L'histoire de la population de l'Afrique du Nord pendant le deuxième millénaire"
+
+Turpeinen (1979), "Fertility and mortality in Finland since 1750", Population studie, vol 33, no 1.
+
+U.S. Census Bureau, Statistical Abstract of the United States: 2012 (131st Edition) Washington, DC, 2011
+
+UNDP (United Nations Development Programme). Statistical Update 2018. UNDP, 2018, http://report2017.archive.s3-website-us-east-1.amazonaws.com.
+
+Vallin J., and Meslé, F. (2001), "Tables de mortalité francaises pour les XIX et XX siècles et projections pour le XXI siècle". Donneés Statistiques. N4-2001. (HLD)
+
+Vallin etal (2002), "A new estimate of Ukrainian population losses during the crises of the 1930s and 1940s". Population Studies: A Journal of Demography, Volume 56, Issue 3
+
+Vallin etal (2012), "Chapter 2: the crisis of the 1930s", in "Mortality and causes of death in 20th century Ukraine", Meslé & Vallin (ed)
+
+Webb & Braun (1994), "Famine and food security in Ethiopia. Lessons for Africa", IFPRI
+
+White, Mathew (2014), "Necrometrics - death tolls across history", homepage, accessed in beginning of 2014.
+
+United Nations, Department of Economic and Social Affairs, Population Division (2019). World Population Prospects 2019: Highlights (ST/ESA/SER.A/423).
+
+United Nations Population Division. World Population Prospects: The 2006 Revision. Life expectancy at birth, both sexes.
+
+United Nations Population Division. World Population Prospects: The 2010 Revision. Life expectancy at birth, both sexes.
+
+United Nations Population Division. World Population Prospects: The 2012 Revision. Life expectancy at birth, both sexes.
+
+Wrigley & Schofield (1989), "The population history of England 1541-1871. A reconstruction"
+
+Wrigley etal (1997), "English population from family reconstitution 1580-1837".
