@@ -29,6 +29,7 @@ library(countrycode)
 library(RColorBrewer)
 library(kableExtra)
 library(broom)
+library(purrr)
 ```
 
 ```{r}
@@ -238,8 +239,66 @@ tibble(Metric = c("Variance in response (A)",
                 font_size = 14,
                 bootstrap_options = c("striped", "hover", "condensed", "responsive"))
 ```
-
 The $R^2$ value is $0.49$, which means about $49\%$ of the variation in Average Life Expectancy can be explained by Average Years of Schooling. This value is pretty high considering there is only one term in the model. Having that much explanatory power is a good sign that the two variables are related.
+
+
+
+We now need to implement our k-folds:
+
+```{r}
+set.seed(93405)
+n <- nrow(agg_data)
+k <- floor(n/10)
+
+agg_data_k <- agg_data |>
+  mutate(fold = sample(rep_len(1:k, n
+  )))
+
+fold_r2 <- function(fold_n, data) {
+  t_data <- data |>
+    filter(fold != fold_n)
+  t2_data <- data |>
+    filter(fold == fold_n)
+  model <- lm(mean_lex ~ mean_edu, data = t_data)
+  pred <- predict(model, newdata = t2_data)
+  
+  clean_pred <- var(pred)
+  var_fin <- var(t2_data$mean_lex)
+  r2 <- clean_pred / var_fin
+  return(r2)
+}
+
+r2_results <- map_dbl(1:k, ~ fold_r2(.x, agg_data_k))
+
+k_table <- tibble(Fold = 1:k, r2 = round(r2_results, 4))
+
+k_table |>
+   kable(format = "html",
+        caption = "K-Fold Cross Validation for R2",
+        escape = FALSE) |>
+  kable_styling(full_width = FALSE,
+                position = "left",
+                font_size = 14,
+                bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+```
+Now we can plot our folds:
+
+```{r}
+mean_r2 <- mean(k_table$r2)
+
+ggplot(k_table, aes(x = r2)) +
+  geom_histogram(binwidth = .02, fill = "lightblue",
+                 boundary = 0) +
+  geom_vline(xintercept = mean_r2, color = "red",
+             linetype = "dashed", linewidth = 1) +
+  labs(title = "Distribution of Cross Validated R^2 Values",
+       x = "R^2",
+       y = "Folds") +
+  theme_minimal()
+  
+```
+
+
 
 ## Bibliography
 
