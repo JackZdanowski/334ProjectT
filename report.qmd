@@ -238,7 +238,7 @@ R2 <- B / A
 tibble(Metric = c("Variance in response (A)",
                   "Variance in fitted values (B)",
                   "Variance in residuals",
-                  "Model $R^2$ (B / A)"),
+                  "Model R<sup>2</sup> (B / A)"),
        Value = c(A, B, res_var, R2)) |>
   mutate(Value = round(Value, 2)) |>
   kable(format = "html",
@@ -249,6 +249,7 @@ tibble(Metric = c("Variance in response (A)",
                 font_size = 14,
                 bootstrap_options = c("striped", "hover", "condensed", "responsive"))
 ```
+
 The $R^2$ value is $0.49$, which means about $49\%$ of the variation in Average Life Expectancy can be explained by Average Years of Schooling. This value is pretty high considering there is only one term in the model. Having that much explanatory power is a good sign that the two variables are related.
 
 
