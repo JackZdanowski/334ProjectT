@@ -62,11 +62,7 @@ The life expectancy data is compiled from multiple sources. The primary source f
 (Africa Watch 1991; Andreev et al. 1998; Ansart et al. 2009; Bell & Miller n.d.; Bernhard 2012; Blayo 1975; Boyle & Ó Gráda 1986; Brunborg 1976; Caldwell et al. 1986; Cameron 2012; Correlates of War n.d.; Devereux 2000; Dyson & Ó Gráda 2002; Dyson 1991; Electoral Institute for Sustainable Democracy in Africa 2009; Eisner 1961; Ellman 2007; Estonian Interuniversity Population Research Centre 2013; FEWS NET 2013; Frankema & Jerven 2013; Gardarsdottir 2002; Gaud & Morgan 1945; Gilbert 2008; GBD 2019; Greer 2005; Groenewold et al. 2007; Hacker 2011; Hamilton & Rasmussen 2009; Hays 2005; Highland 1991; Hill et al. 2008; Human Life-Table Database n.d.; Human Mortality Database 2009, 2011, 2013; Hubert 2009; Johnson & Mueller 2002; Kamal 2008; Kannisto et al. 1999; Katus 2000; Kohn 2008; Krumins 1994; Kuczynski 1948; Kumo et al. 2007; Langford & Storey 1992, 1993; Langford 1996; Latvijas Statistika 2013; Lee & Feng 1999; Luo 1988; Maison 1977; Manniche 1997; Ministry of Health 1920; Mitchell 2003; Murray et al. 2006; Myllyntaus 2009; National Statistics China (Taiwan) 2013; Ó Gráda 2006, 2009; Patterson 1993; Post 1990; Riley 2005a, 2005b, n.d.; Seklani 1974; Shanks et al. 2011, 2012; Sigrah & King 2001; Singiza 2011; Smallman-Raynor & Cliff 1998; Spagnol 1997; Statistics and Research Åland n.d.; Statistics Estonia 2013; Statistics Greenland 2013; Straits Times 2011; Thibon 2002; Tubutin et al. 2001; Turpeinen 1979; U.S. Census Bureau 2011; Vallin & Meslé 2001; Vallin et al. 2002, 2012; Webb & Braun 1994; White 2014; UN Population Division 2006, 2010, 2012, 2019; Wrigley & Schofield 1989; Wrigley et al. 1997)
 :::
 
-The mean years of schooling data combines estimates from Lee-Lee (2016) for 1870–1949 (population aged 25–64), Barro-Lee (2018) for 1950–1990 (population aged 25+), and the United Nations Development Programme (UNDP) Human Development Report (2018) for 1991–2017 (population aged 25+).
-
-::: {style="font-size: 50%;"}
-(Barro-Lee 2018; Lee-Lee 2016; UNDP 2018)
-:::
+The mean years of schooling data combines estimates from Lee-Lee for 1870–1949 [population aged 25–64], Barro-Lee for 1950–1990 [population aged 25+], and the United Nations Development Programme (UNDP) 2018 Human Development Report for 1991–2017 [population aged 25+] (Barro-Lee 2018; Lee-Lee 2016; UNDP 2018).
 
 We hypothesize a moderate to strong positive relationship between mean years of schooling and life expectancy, with higher levels of education correlating with longer life expectancy. This is to be expected, because education is often tied to improved health literacy, better access to healthcare, and improved socioeconomic opportunities, and this connection is supported by The Nation’s Health, a publication of the American Public Health Association (McGill 2016).
 
@@ -93,7 +89,7 @@ joined |>
 
 Figure 1: Missing education data by country and year (1990–2017). Taiwan, South Korea, and Somalia show consistently missing data and were excluded.
 
-## Data Visualization
+## 3. Data Visualization
 
 Aggregated Plot
 
@@ -123,9 +119,6 @@ ggplot(agg_data, aes(x = mean_edu,
        y = "Life Expectancy at Birth (2000–2017)",
        color = "Continent") +
   theme_minimal()
-
-
-
 ```
 
 In our aggregated plot showing the relationship between Mean Years of Schooling and Life Expectancy by country, we can see that there does exist a moderately strong positive linear relationship. We also can see that both the mean years of schooling and life expectancy is lowest in countries in Africa, and highest in countries in Europe, with countries in the Americas and Asia sprinkled near the top, and countries in Oceania are pretty spread out across the graph.
@@ -178,7 +171,7 @@ anim_save("education_lifeexp.gif", animation = anim)
 
 In our animated plot, we can see how even though the years included in the study are very recent, how every country is seemingly increasing their Mean Years of Schooling and their Life Expectancy. This is definitely most easily seen when the animation restarts, you can see the progress made by 2017 once it resets to 2000 very well. Over the years, the linear relationship remains, and in fact appears to grow stronger. This illustrates just how well related these two variables are.
 
-## Linear Regression
+### Linear Regression
 
 We used the same aggregate data that we coded earlier for the single scatter plot. This data takes the average of each country's life expectancy and the average of their years of education and plots them against each other.
 
@@ -209,23 +202,25 @@ Once again, our linear fairly strong, positive relationship is highlighted, espe
 
 ```{r}
 broom::tidy(reg0) |>
+  mutate(term = ifelse(term == "mean_edu", "Mean Schooling", "Intercept")) |>
   kable(col.names = c("Term", "Coefficient", "Standard Error", "T-Value", "P-Value"),
-        caption = "Simple Linear Regression Output") |>
+        caption = "Simple Linear Regression Output",
+        digits = 3) |>
   kable_styling(full_width = FALSE,
                 position = "left",
                 font_size = 14,
                 bootstrap_options = c("striped", "hover", "condensed", "responsive"))
 ```
 
-We fit a simple linear regression model to predict a country's average life expectancy ($\hat{y}$) based on its average years of schooling ($mean\_edu$). The fitted regression equation is:
+We fit a simple linear regression model to predict a country's average life expectancy ($\hat{y}$) based on its average years of schooling ($Mean \ Schooling$). The fitted regression equation is:
 
 $$
-\hat{y} = 54.941 + 0.289(mean\_edu)
+\hat{y} = 54.941 + 0.289(Mean \ Schooling)
 $$
 
-This means that for every additional year of schooling, a country's average life expectancy is expected to increase by approximately 0.289 years.
+This means that for every additional year of schooling, a country's average life expectancy is expected to increase by approximately $0.289$ years.
 
-## Model Fit
+### Model Fit
 
 ```{r}
 # Variance calculations
@@ -235,9 +230,9 @@ res_var <- var(residuals(reg0))
 R2 <- B / A
 
 # Table Code
-tibble(Metric = c("Variance in response (A)",
-                  "Variance in fitted values (B)",
-                  "Variance in residuals",
+tibble(Metric = c("Variance in Response (A)",
+                  "Variance in Fitted Values (B)",
+                  "Variance in Residuals",
                   "Model R<sup>2</sup> (B / A)"),
        Value = c(A, B, res_var, R2)) |>
   mutate(Value = round(Value, 2)) |>
@@ -254,7 +249,7 @@ The $R^2$ value is $0.49$, which means about $49\%$ of the variation in Average 
 
 
 
-## K-Fold Cross Validation
+## 4. K-Fold Cross Validation
 
 ```{r}
 set.seed(93405)
@@ -284,9 +279,11 @@ r2_results <- map_dbl(1:k, ~ fold_r2(.x, agg_data_k))
 k_table <- tibble(Fold = 1:k, r2 = round(r2_results, 4))
 
 k_table |>
-   kable(format = "html",
+  kable(format = "html",
         caption = "K-Fold Cross Validation for R2",
-        escape = FALSE) |>
+        escape = FALSE,
+        digits = 3,
+        col.names = c("Fold", "R<sup>2</sup>")) |>
   kable_styling(full_width = FALSE,
                 position = "left",
                 font_size = 14,
@@ -309,10 +306,15 @@ ggplot(k_table, aes(x = r2)) +
   
 ```
 
-According to this graph we can assume our model is moderatly predictive. The mean R^2 value appears to be around .625. This means that on average our model explains around 62.5% of the variance in life expectancy. The R^2 values range pretty widely. It's from around .2 to above 2. This means that there is some high variance in the performance across folds. This is most likely due to some folds having a small sample size or there are some outliers in certain folds. There is a chance for some overfitting, but not guaranteed. One fold yields a very high R^2 value > 2. This could indicate that there is some overreacting to smaller datasets.
+According to this graph we can assume our model is moderately predictive. The mean $R^2$ value appears to be around $0.625$. This means that on average our model explains around $62.5\%$ of the variance in life expectancy. The $R^2$ values range pretty widely. It's from around $0.2$ to above $2$. This means that there is some high variance in the performance across folds. This is most likely due to some folds having a small sample size or there are some outliers in certain folds. There is a chance for some overfitting, but not guaranteed. One fold yields a very high $R^2$ value $> 2$. This could indicate that there is some overreacting to smaller datasets.
 
-## Bibliography
+## 5. Conclusion
 
+We have found that average life expectancy by country and year is associated with average years of schooling. 
+
+### Bibliography
+
+::: {style="font-size: 80%;"}
 Africa watch, de Waal (1991), "Evil days. 30 years of war and famine in Ethiopia.", An Africa Watch report.
 
 Andreev etal (1998), "Demographic history of Russia: 1927-1959" (In russian) (cited in e2744).
@@ -335,7 +337,7 @@ Caldwell etal (1986), "Population trends in China - a perspective provided by th
 
 Cameron (2012), "The hungry steppe: Famine, mass violence and the making of Soviet Kazakhstan", Scholar research brief
 
-Correlates of War
+Correlates of War (n.d)
 
 Devereux (2000), "Famine in the twentieth century", IDS Working Paper 105
 
@@ -506,3 +508,4 @@ United Nations Population Division. World Population Prospects: The 2012 Revisio
 Wrigley & Schofield (1989), "The population history of England 1541-1871. A reconstruction"
 
 Wrigley etal (1997), "English population from family reconstitution 1580-1837".
+:::
