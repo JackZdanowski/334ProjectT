@@ -310,7 +310,7 @@ According to this graph we can assume our model is moderately predictive. The me
 
 ## 5. Conclusion
 
-We have found that average life expectancy by country and year is associated with average years of schooling. 
+We have found that average life expectancy by country and year has a moderately strong, positive, linear relationship with average years of schooling. We have found that our model of life expectancy and years of schooling is moderately predictive and has slight overfitting. Further research into this relationship could give us insights into the importance of education.
 
 ### Bibliography
 
