@@ -4,9 +4,9 @@ author: "Andrew Dang, Dennis Kulik, Andrew Loader, Jack Zdanowski"
 format: 
   html:
     embed-resources: true
-    code-tools: false
+    code-tools: true
     toc: true
-    code-fold: false
+    code-fold: true
 editor: source
 execute: 
   error: true
@@ -87,7 +87,7 @@ joined |>
   )
 ```
 
-Figure 1: Missing education data by country and year (1990–2017). Taiwan, South Korea, and Somalia show consistently missing data and were excluded.
+Missing education data by country and year (1990–2017). Taiwan, South Korea, and Somalia show consistently missing data and were excluded.
 
 ## 3. Data Visualization
 
@@ -168,8 +168,7 @@ anim_save("education_lifeexp.gif", animation = anim)
 ```
 
 ![Animated Plot](education_lifeexp.gif)
-
-In our animated plot, we can see how even though the years included in the study are very recent, how every country is seemingly increasing their Mean Years of Schooling and their Life Expectancy. This is definitely most easily seen when the animation restarts, you can see the progress made by 2017 once it resets to 2000 very well. Over the years, the linear relationship remains, and in fact appears to grow stronger. This illustrates just how well related these two variables are.
+In our animated plot, we can see that even in the relatively recent time span covered by the study, all countries show an upward trend in both Mean Years of Schooling and Life Expectancy. The contrast between the beginning and end of the timeline is especially noticeable when the animation loops. Throughout the years, the linear relationship not only remains, but appears to grow stronger, highlighting the strong association between the two variables.
 
 ### Linear Regression
 
@@ -306,11 +305,14 @@ ggplot(k_table, aes(x = r2)) +
   
 ```
 
-According to this graph we can assume our model is moderately predictive. The mean $R^2$ value appears to be around $0.625$. This means that on average our model explains around $62.5\%$ of the variance in life expectancy. The $R^2$ values range pretty widely. It's from around $0.2$ to above $2$. This means that there is some high variance in the performance across folds. This is most likely due to some folds having a small sample size or there are some outliers in certain folds. There is a chance for some overfitting, but not guaranteed. One fold yields a very high $R^2$ value $> 2$. This could indicate that there is some overreacting to smaller datasets.
+According to this graph, we can assume our model is moderately predictive. The mean $R^2$ value appears to be around $0.625$, indicating that, on average, our model explains approximately $62.5\%$ of the variance in life expectancy. The $R^2$ values vary pretty widely, ranging from around $0.2$ to above $2$. This means that there is some high variance in the performance across folds. This is most likely due to some folds having a small sample size or the presence of outliers in certain folds. While there is a chance for some degree of overfitting, it is not guaranteed. The unusually high $R^2$ value (greater than 2) in one fold may indicate that the model is overfitting or behaving erratically when applied to small subsets of the data.
 
 ## 5. Conclusion
 
-We have found that average life expectancy by country and year has a moderately strong, positive, linear relationship with average years of schooling. We have found that our model of life expectancy and years of schooling is moderately predictive and has slight overfitting. Further research into this relationship could give us insights into the importance of education.
+Our analysis has found a moderately strong, positive, linear relationship between average life expectancy and mean years of schooling across countries and years. We have found that the model used to explore this relationship is moderately predictive, though there is some evidence of overfitting. These findings support our hypothesis and suggest that education plays a meaningful role in influencing life expectancy. Further research into this relationship could give us insights into the importance of education.
+
+The code and collaboration for this project can be found at: 
+https://github.com/JackZdanowski/334ProjectT
 
 ### Bibliography
 
